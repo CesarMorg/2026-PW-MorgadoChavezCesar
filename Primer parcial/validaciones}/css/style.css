@@ -44,5 +44,15 @@ footer {
     border: 1px solid;
     border-radius: 0.5rem;
     padding: 1rem;
-    
+
+}
+
+.tarjeta h2{
+    margin-top: 0;
+    font-size: 1.1rem;
+
+}
+
+.tarjeta a:hover {
+    text-decoration: underline;
 }

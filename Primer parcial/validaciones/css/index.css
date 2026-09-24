@@ -1,0 +1,73 @@
+/* CSS DEL INDEX PRINCIPAL (PORTAFOLIO) */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family: Arial, Helvetica, sans-serif;
+    background:#e5e7eb;
+    color:#1f2937;
+}
+
+.container{
+    width:90%;
+    max-width:1100px;
+    margin:40px auto;
+}
+
+.content{
+    background:white;
+    padding:30px;
+    border-radius:12px;
+    box-shadow:0 5px 15px rgba(0,0,0,0.15);
+}
+
+.titulocontent{
+    text-align:center;
+    margin-bottom:25px;
+}
+
+.titulocontent h1{
+    color:#1e3a8a;
+    margin-bottom:10px;
+    font-size:40px;
+}
+
+.titulocontent p{
+    font-size:18px;
+    color:#4b5563;
+}
+
+.tables table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:20px;
+}
+
+.tables th{
+    background:#1e3a8a;
+    color:white;
+    padding:12px;
+}
+
+.tables td{
+    padding:12px;
+    border:1px solid #d1d5db;
+}
+
+.tables tr:nth-child(even){
+    background:#f3f4f6;
+}
+
+.tables a{
+    color:#2563eb;
+    text-decoration:none;
+    font-weight:bold;
+}
+
+.tables a:hover{
+    text-decoration:underline;
+}

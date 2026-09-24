@@ -1,5 +1,3 @@
-
-
 const talleres = [
   { nombre: 'Introducción a Python', instructor: 'Ing. María López', cupo: 25, inscritos: 25 },
   { nombre: 'Fundamentos de Redes', instructor: 'Ing. Carlos Ramírez', cupo: 30, inscritos: 18 },
@@ -7,39 +5,90 @@ const talleres = [
   { nombre: 'Desarrollo Web con JS', instructor: 'Ing. María López', cupo: 25, inscritos: 10 },
 ];
 
+// Función para llenar la tabla
+function pintarTabla() {
+    const tabla = document.getElementById("tabla-talleres");
 
-function pintarTabla(){
-    //debe de obtener la tabla y rellenarla con los datos de talleres
+    talleres.forEach((taller) => {
+        const fila = tabla.insertRow();
+
+        fila.insertCell().textContent = taller.nombre;
+        fila.insertCell().textContent = taller.instructor;
+        fila.insertCell().textContent = taller.cupo;
+        fila.insertCell().textContent = taller.inscritos;
+    });
 }
 
-const formArreglos = document.getElementById('form-arreglos');
-const resultadoArreglos = document.getElementById('resultado-arreglo');
-const selectOperacionArreglo = document.getElementById('operacion-arreglo');
+// Se pinta la tabla al abrir la página
+pintarTabla();
 
-formArreglos.addEventListener('submit', (evento) =>{
+const formArreglos = document.getElementById("form-arreglos");
+const resultadoArreglos = document.getElementById("resultado-arreglo");
+const selectOperacionArreglo = document.getElementById("operacion-arreglo");
+
+formArreglos.addEventListener("submit", (evento) => {
     evento.preventDefault();
+
     const operacion = selectOperacionArreglo.value;
+    let resultado = "";
 
-    let resultado;
+    switch (operacion) {
 
-    switch(operacion){
-        case 'forEach':
-            resultado = talleres.map((t) => `- ${t.nombre} (${t.inscritos}/${t.cupo})`).join('\n');
+        case "forEach":
+            resultado = talleres
+                .map((t) => `- ${t.nombre} (${t.inscritos}/${t.cupo})`)
+                .join("\n");
             break;
+
+        case "map":
+            resultado = talleres
+                .map((t) => t.nombre)
+                .join("\n");
+            break;
+
+        case "filter":
+            resultado = talleres
+                .filter((t) => t.inscritos >= t.cupo)
+                .map((t) => t.nombre)
+                .join("\n") || "No hay talleres llenos";
+            break;
+
+        case "find": {
+            const instructor = "Ing. María López";
+            const taller = talleres.find(
+                (t) => t.instructor === instructor
+            );
+
+            resultado = taller
+                ? `${taller.nombre} (${taller.inscritos}/${taller.cupo})`
+                : `No se encontró un taller impartido por ${instructor}`;
+            break;
+        }
+
+        case "reduce": {
+            const totalInscritos = talleres.reduce(
+                (acc, t) => acc + t.inscritos,
+                0
+            );
+
+            resultado = `Total de inscritos: ${totalInscritos}`;
+            break;
+        }
+
+        case "filterMap": {
+            const conCupo = talleres
+                .filter((t) => t.inscritos < t.cupo)
+                .map((t) => t.nombre);
+
+            resultado = conCupo.length > 0
+                ? conCupo.join("\n")
+                : "No hay talleres con cupo disponible";
+            break;
+        }
+
+        default:
+            resultado = "Selecciona una operación.";
     }
-
-    case 'map':
-        resultado = talleres.map((t) => t.nombre).join('\n');
-        break;
-    case 'filter':
-        resultado = talleres
-        .filter((t) => t.inscritos >= t.cupo)
-        .map((t) => t.nombre)
-        .join('\n') || 'No hay talleres llenos'; 
-        break;
-    case 
-    
-
 
     resultadoArreglos.textContent = resultado;
 });

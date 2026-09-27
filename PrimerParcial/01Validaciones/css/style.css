@@ -198,3 +198,144 @@ footer{
         max-width: 250px;
     }
 }
+/* ================================
+ESTILOS PARA DETALLE
+================================ */
+
+header{
+background-color: #1d4ed8;
+padding: 20px;
+text-align: center;
+}
+
+header a{
+color: white;
+text-decoration: none;
+font-weight: bold;
+font-size: 16px;
+}
+
+header a:hover{
+text-decoration: underline;
+}
+
+.info-taller{
+width: 90%;
+max-width: 800px;
+margin: 40px auto 25px;
+background-color: white;
+padding: 30px;
+border-radius: 12px;
+box-shadow: 0 5px 15px rgba(0,0,0,.12);
+}
+
+.info-taller h2{
+color: #1d4ed8;
+text-align: center;
+margin-bottom: 25px;
+}
+
+.info-taller p{
+margin-bottom: 15px;
+color: #374151;
+line-height: 1.5;
+}
+
+.info-taller .boton{
+margin-top: 10px;
+}
+
+.bitacora{
+width: 90%;
+max-width: 800px;
+margin: 25px auto 40px;
+background-color: white;
+padding: 30px;
+border-radius: 12px;
+box-shadow: 0 5px 15px rgba(0,0,0,.12);
+}
+
+.bitacora h2{
+color: #1d4ed8;
+margin-bottom: 20px;
+}
+
+.bitacora ul{
+padding-left: 25px;
+}
+
+.bitacora li{
+margin-bottom: 12px;
+color: #374151;
+}
+
+/* ================================
+ESTILOS PARA REGISTRO
+================================ */
+
+.formulario-registro{
+width: 90%;
+max-width: 600px;
+margin: 40px auto;
+background-color: white;
+padding: 35px;
+border-radius: 12px;
+box-shadow: 0 5px 15px rgba(0,0,0,.12);
+}
+
+.formulario-registro h1{
+text-align: center;
+color: #1d4ed8;
+margin-bottom: 30px;
+}
+
+.formulario-registro label{
+display: block;
+margin-top: 15px;
+margin-bottom: 8px;
+font-weight: bold;
+color: #374151;
+}
+
+.formulario-registro input{
+width: 100%;
+padding: 12px;
+border: 1px solid #d1d5db;
+border-radius: 6px;
+font-size: 16px;
+}
+
+.formulario-registro input:focus{
+outline: none;
+border-color: #2563eb;
+box-shadow: 0 0 0 2px rgba(37,99,235,.15);
+}
+
+.formulario-registro button{
+width: 100%;
+margin-top: 25px;
+padding: 12px;
+background-color: #2563eb;
+color: white;
+border: none;
+border-radius: 6px;
+font-size: 16px;
+font-weight: bold;
+cursor: pointer;
+}
+
+.formulario-registro button:hover
+
+.error{
+display: block;
+color: #dc2626;
+font-size: 14px;
+margin-top: 5px;
+}
+
+.mensaje-exito{
+text-align: center;
+color: #16a34a;
+font-weight: bold;
+margin-top: 15px;
+}

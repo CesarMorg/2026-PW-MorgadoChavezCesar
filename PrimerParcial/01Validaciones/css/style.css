@@ -1,86 +1,156 @@
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
+* {
+    box-sizing: border-box;
 }
 
-body{
-    font-family:Arial, Helvetica, sans-serif;
-    background:#f3f4f6;
-    color:#1f2937;
+body {
+    margin: 0;
+    font-family: 'Courier New', Courier, monospace;
+    color: #1f2937;
+    background-color: #f9fafb;
 }
 
-header{
-    background:#2563eb;
-    color:white;
-    text-align:center;
-    padding:25px;
+header {
+    background-color: #1f2937;
+    color: #ffff;
+    padding: 1rem;
+    text-align: center;
 }
 
-header p{
-    margin:10px 0 15px;
+header a {
+    color: #FFFF;
 }
 
-.boton{
-    display:inline-block;
-    background:white;
-    color:#2563eb;
-    padding:8px 15px;
-    border-radius:5px;
-    text-decoration:none;
-    font-weight:bold;
+main {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 1.5rem;
 }
 
-main{
-    max-width:950px;
-    margin:30px auto;
-    padding:0 20px;
+footer {
+    text-align: center;
+    padding: 1rem;
+    color: #6b7286;
+    font-size: 0.875rem;
 }
 
-.catalogo{
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:20px;
+.container {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
 }
 
-.tarjeta{
-    background:white;
-    border:1px solid #d1d5db;
-    border-radius:10px;
-    padding:15px;
+.titulocontent h1 {
+    font-size: 1.8rem;
+    margin: 0 0 0.5rem 0;
 }
 
-.tarjeta h2{
-    color:#2563eb;
-    margin-bottom:10px;
-    font-size:20px;
+.titulocontent p {
+    color: #4b5563;
+    margin: 0 0 1.5rem 0;
 }
 
-.tarjeta p{
-    margin:8px 0;
+table {
+    width: 100%;
+    border-collapse: collapse;
 }
 
-.tarjeta:hover{
-    background:#eff6ff;
+th, td {
+    text-align: left;
+    padding: 0.6rem;
+    border-bottom: 1px solid #d1d5db;
 }
 
-.btn-taller{
-    display:inline-block;
-    margin-top:10px;
-    background:#16a34a;
-    color:white;
-    padding:8px 12px;
-    border-radius:5px;
-    text-decoration:none;
+th {
+    background-color: #1f2937;
+    color: #ffffff;
 }
 
-.btn-taller:hover{
-    background:#15803d;
+td a {
+    color: #2563eb;
 }
 
-footer{
-    text-align:center;
-    background:#e5e7eb;
-    padding:15px;
-    margin-top:30px;
+.catalogo {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+}
+
+.tarjeta {
+    background-color: #ffff;
+    border: 1px solid;
+    border-radius: 0.5rem;
+    padding: 1rem;
+}
+
+.tarjeta h2 {
+    margin-top: 0;
+    font-size: 1.1rem;
+}
+
+.tarjeta a:hover {
+    text-decoration: underline;
+}
+
+.formulario-registro {
+    background-color: #ffffff;
+    max-width: 480px;
+    margin: 2rem auto;
+    padding: 2rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.formulario-registro h1 {
+    margin: 0 0 1rem 0;
+    font-size: 1.6rem;
+}
+
+.formulario-registro label {
+    font-weight: bold;
+    margin-top: 0.75rem;
+}
+
+.formulario-registro input {
+    padding: 0.6rem;
+    border: 1px solid #cdd3db;
+    border-radius: 0.375rem;
+    font-size: 1rem;
+    width: 100%;
+    
+}
+
+.formulario-registro button {
+    background-color: #25303f;
+    color: #ffffff;
+    border: none;
+    padding: 0.75rem;
+    border-radius: 0.375rem;
+    font-size: 1rem;
+    cursor: pointer;
+    margin-top: 1rem;
+    align-self: flex-start;
+}
+
+.formulario-registro button:hover {
+    background-color: #2b59a3;
+}
+
+.formulario-registro input.invalido {
+    border-color: #a01b1b;
+    background-color: #fef2f2;
+}
+
+.formulario-registro .error {
+    color: #961616;
+    font-size: 0.8rem;
+    min-height: 1rem;
+}
+
+.formulario-registro .mensaje-exito.activo {
+    color: #11aa49;
+    font-weight: bold;
+    padding: 0.5rem 0;
 }

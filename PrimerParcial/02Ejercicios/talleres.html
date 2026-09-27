@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ejecicios con Node</title>
-    <link rel="stylesheet" href="./css/talleres.css">
+    <link rel="stylesheet" href="./css/style.css">
 </head>
 <body>
     <header>
@@ -35,11 +35,11 @@
                     <label for="operacion-arreglo" name="operacion-arreglo">Operación</label>
                     <select name="operacion-arreglo" id="operacion-arreglo">
                         <option value="forEach">ForEach - Lista Simple</option>
-                        <option value="reduce">reduce - Total de inscritos</option>
-                        <option value="filterMap">filter + map - Talleres con cupo disponible</option>
                         <option value="map">map - Copia solo Nombres</option>
                         <option value="filter">filter - Filtrar Talleres con cupo lleno</option>
                         <option value="find">find - Buscar por el nombre del instructor</option>
+                        <option value="reduce">reduce - Total de inscritos</option>
+                        <option value="filterMap">filter + map - Talleres con cupo disponible</option>
                     </select>
                 </div>
 
@@ -48,6 +48,48 @@
             </form>
 
             <output class="resultado" id="resultado-arreglo" for="form-arreglo" ></output>
+        </section>
+
+        <section class="ejercicio" aria-labelledby="titulo-objeto">
+            <h2 id="titulo-objeto">Manejo de objetos y JSON</h2>
+            <p>Edita el taller y elije que operacion deseas aplicar</p>
+
+
+        <form id="Form-objeto" class="formulario">
+            <div class="campo">
+                <label for="obj-nombre">Nombre</label>
+                <input type="text" name="obj-nombre" id="obj-nombre" value="Introduccion a Python">
+            </div>
+
+            <div class="campo">
+                <label for="obj-instructor">Instuctor</label>
+                <input type="text" name="obj-instructor" id="obj-instructor" value="Ing. Maria Lopez">
+            </div>
+
+            <div class="campo">
+                <label for="obj-cupo">Cupo</label>
+                <input type="text" name="obj-cupo" id="obj-cupo" value="25" min="0">
+            </div>
+
+            <div class="campo">
+                <label for="obj-inscritos">Inscritos</label>
+                <input type="text" name="obj-inscritos" id="obj-inscritos" value="25" min="0">
+            </div>
+
+            <div class="campo">
+                <label for="operacion-objeto">Tipo de operacion</label>
+                <select name="operacion-objeto" id="operacion-objeto">
+                    <option value="keys">Object.keys</option>
+                    <option value="values">Object.values</option>
+                    <option value="entries">Object.entries</option>
+                    <option value="stringify">JSON a Cadena</option>
+                    <option value="roundtrip">Ida y vuelta (JSON a Cadena)</option>
+                </select>
+            </div>
+            <button type="submit">Ejecutar Opcion</button>
+        </form>
+        <output class="resultado" id="resultado-objeto" for="form-objeto" ></output>
+
         </section>
     </main>
 

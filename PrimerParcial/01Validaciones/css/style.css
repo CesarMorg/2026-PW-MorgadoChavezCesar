@@ -1,159 +1,68 @@
-* {
-    box-sizing: border-box;
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
 }
 
-body {
-    margin: 0;
-    font-family: 'Courier New', Courier, monospace;
-    color: #1f2937;
-    background-color: #f9fafb;
+body{
+    font-family:Arial, Helvetica, sans-serif;
+    background:#eef2f7;
+    color:#1f2937;
 }
 
-header {
-    background-color: #1f2937;
-    color: #ffff;
-    padding: 1rem;
-    text-align: center;
+.container{
+    width:90%;
+    max-width:1000px;
+    margin:30px auto;
 }
 
-header a {
-    color: #FFFF;
+.content{
+    background:white;
+    padding:25px;
+    border-radius:10px;
+    box-shadow:0 2px 8px rgba(0,0,0,.15);
 }
 
-main {
-    max-width: 960px;
-    margin: 0 auto;
-    padding: 1.5rem;
+.titulocontent{
+    text-align:center;
+    margin-bottom:25px;
 }
 
-footer {
-    text-align: center;
-    padding: 1rem;
-    color: #6b7286;
-    font-size: 0.875rem;
+.titulocontent h1{
+    color:#1d4ed8;
+    margin-bottom:10px;
 }
 
-.container {
-    max-width: 960px;
-    margin: 0 auto;
-    padding: 2rem 1rem;
+.titulocontent p{
+    color:#4b5563;
 }
 
-.titulocontent h1 {
-    font-size: 1.8rem;
-    margin: 0 0 0.5rem 0;
+table{
+    width:100%;
+    border-collapse:collapse;
 }
 
-.titulocontent p {
-    color: #4b5563;
-    margin: 0 0 1.5rem 0;
+th{
+    background:#1d4ed8;
+    color:white;
+    padding:12px;
 }
 
-table {
-    width: 100%;
-    border-collapse: collapse;
+td{
+    padding:12px;
+    border-bottom:1px solid #d1d5db;
 }
 
-th, td {
-    text-align: left;
-    padding: 0.6rem;
-    border-bottom: 1px solid #d1d5db;
+tr:hover{
+    background:#eff6ff;
 }
 
-th {
-    background-color: #1f2937;
-    color: #ffffff;
+a{
+    color:#15803d;
+    font-weight:bold;
+    text-decoration:none;
 }
 
-td a {
-    color: #2563eb;
-}
-
-.catalogo {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1rem;
-}
-
-.tarjeta {
-    background-color: #ffff;
-    border: 1px solid;
-    border-radius: 0.5rem;
-    padding: 1rem;
-}
-
-.tarjeta h2 {
-    margin-top: 0;
-    font-size: 1.1rem;
-}
-
-.tarjeta a:hover {
-    text-decoration: underline;
-}
-
-.formulario-registro {
-    background-color: #ffffff;
-    max-width: 480px;
-    margin: 2rem auto;
-    padding: 2rem;
-    border: 1px solid #d1d5db;
-    border-radius: 0.5rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.35rem;
-}
-
-.formulario-registro h1 {
-    margin: 0 0 1rem 0;
-    font-size: 1.6rem;
-}
-
-.formulario-registro label {
-    font-weight: bold;
-    margin-top: 0.75rem;
-}
-
-.formulario-registro input {
-    padding: 0.6rem;
-    border: 1px solid #cdd3db;
-    border-radius: 0.375rem;
-    font-size: 1rem;
-    width: 100%;
-    
-}
-
-.formulario-registro button {
-    background-color: #25303f;
-    color: #ffffff;
-    border: none;
-    padding: 0.75rem;
-    border-radius: 0.375rem;
-    font-size: 1rem;
-    cursor: pointer;
-    margin-top: 1rem;
-    align-self: flex-start;
-}
-
-.formulario-registro button:hover {
-    background-color: #2b59a3;
-}
-
-.formulario-registro input.invalido {
-    border-color: #a01b1b;
-    background-color: #fef2f2;
-}
-
-.formulario-registro .error {
-    color: #961616;
-    font-size: 0.8rem;
-    min-height: 1rem;
-}
-
-.formulario-registro .mensaje-exito.activo {
-    color: #11aa49;
-    font-weight: bold;
-    padding: 0.5rem 0;
-}
-h1{
-    color:red;
+a:hover{
+    text-decoration:underline;
 }

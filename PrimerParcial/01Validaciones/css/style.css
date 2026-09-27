@@ -1,123 +1,197 @@
 *{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
 body{
-    font-family:Arial, Helvetica, sans-serif;
-    background:#eef2f7;
-    color:#1f2937;
+    font-family: Arial, Helvetica, sans-serif;
+    background-color: #f4f6f9;
+    color: #1f2937;
 }
 
-.container{
-    width:90%;
-    max-width:1000px;
-    margin:30px auto;
+header{
+    background-color: #2563eb;
+    color: white;
+    text-align: center;
+    padding: 25px;
 }
 
-.content{
-    background:white;
-    padding:25px;
-    border-radius:10px;
-    box-shadow:0 2px 8px rgba(0,0,0,.15);
+header h1{
+    margin-bottom: 10px;
 }
 
-.titulocontent{
-    text-align:center;
-    margin-bottom:25px;
+header p{
+    font-size: 16px;
 }
 
-.titulocontent h1{
-    color:#1d4ed8;
-    margin-bottom:10px;
+header a{
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
 }
 
-.titulocontent p{
-    color:#4b5563;
+main{
+    max-width: 1000px;
+    margin: 30px auto;
+    padding: 20px;
 }
 
-table{
-    width:100%;
-    border-collapse:collapse;
-}
+/* Bienvenida */
 
-th{
-    background:#1d4ed8;
-    color:white;
-    padding:12px;
-}
-
-td{
-    padding:12px;
-    border-bottom:1px solid #d1d5db;
-}
-
-tr:hover{
-    background:#eff6ff;
-}
-
-a{
-    color:#15803d;
-    font-weight:bold;
-    text-decoration:none;
-}
-
-a:hover{
-    text-decoration:underline;
-}
 .bienvenida{
-    background:#dbeafe;
-    padding:20px;
-    border-radius:10px;
-    margin-bottom:25px;
-    text-align:center;
+    background-color: #dbeafe;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    margin-bottom: 30px;
 }
 
 .bienvenida h2{
-    color:#1d4ed8;
-    margin-bottom:10px;
+    color: #1d4ed8;
+    margin-bottom: 10px;
 }
 
-.boton{
-    display:inline-block;
-    margin-top:10px;
-    padding:8px 14px;
-    background:#2563eb;
-    color:white;
-    text-decoration:none;
-    border-radius:6px;
+/* Tarjetas del catálogo */
+
+.catalogo{
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
 }
 
-.boton:hover{
-    background:#1d4ed8;
+.tarjeta{
+    background: white;
+    width: 270px;
+    padding: 20px;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    text-align: center;
 }
 
-.info{
-    margin-top:30px;
+.tarjeta h2{
+    color: #2563eb;
+    margin-bottom: 12px;
+    font-size: 20px;
 }
 
-.info h2{
-    text-align:center;
-    margin-bottom:20px;
+.tarjeta p{
+    margin: 8px 0;
 }
 
-.datos{
-    display:flex;
-    justify-content:space-around;
-    text-align:center;
-    flex-wrap:wrap;
+.tarjeta:hover{
+    background-color: #eff6ff;
 }
 
-.datos div{
-    background:white;
-    border:1px solid #d1d5db;
-    border-radius:10px;
-    padding:15px;
-    width:180px;
+/* Botones */
+
+.boton,
+.btn-taller{
+    display: inline-block;
+    margin-top: 15px;
+    padding: 8px 15px;
+    background-color: #2563eb;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: bold;
 }
 
-.datos h3{
-    color:#16a34a;
-    font-size:28px;
+.boton:hover,
+.btn-taller:hover{
+    background-color: #1d4ed8;
+}
+
+/* Página detalle */
+
+.info-taller,
+.bitacora{
+    background: white;
+    padding: 20px;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.info-taller h2,
+.bitacora h2{
+    color: #2563eb;
+    margin-bottom: 10px;
+}
+
+.bitacora ul{
+    padding-left: 20px;
+}
+
+.bitacora li{
+    margin: 8px 0;
+}
+
+/* Formulario de registro */
+
+.formulario-registro{
+    background: white;
+    max-width: 500px;
+    margin: 20px auto;
+    padding: 25px;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+}
+
+.formulario-registro h1{
+    text-align: center;
+    margin-bottom: 20px;
+    color: #2563eb;
+}
+
+.formulario-registro label{
+    display: block;
+    margin-top: 12px;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.formulario-registro input{
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+}
+
+.formulario-registro button{
+    margin-top: 20px;
+    width: 100%;
+    padding: 10px;
+    background: #16a34a;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.formulario-registro button:hover{
+    background: #15803d;
+}
+
+.error{
+    color: #dc2626;
+    font-size: 13px;
+}
+
+.mensaje-exito{
+    color: #16a34a;
+    text-align: center;
+    margin-top: 15px;
+    font-weight: bold;
+}
+
+/* Footer */
+
+footer{
+    text-align: center;
+    padding: 20px;
+    margin-top: 30px;
+    color: #4b5563;
+    background-color: #e5e7eb;
 }

@@ -24,3 +24,5 @@ async function consultarAsistenciaTaller(req, res) {
     }
 }
 
+module.exports = { registrarAsistencia, consultarAsistenciaTaller };
+

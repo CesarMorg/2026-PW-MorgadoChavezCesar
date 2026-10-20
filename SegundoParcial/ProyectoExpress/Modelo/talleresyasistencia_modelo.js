@@ -35,4 +35,4 @@ async function consultarAsistenciaTaller(taller_id) {
     return filas;
 }
 
-
+module.exports = { listarTalleres, registrarAlumno, registrarAsistencia, consultarAsistenciaTaller };

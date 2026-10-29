@@ -53,3 +53,8 @@
   font-weight: 600;
   text-decoration: none;
 }
+.rejilla {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+}

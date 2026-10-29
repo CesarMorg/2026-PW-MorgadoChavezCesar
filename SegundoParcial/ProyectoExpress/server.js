@@ -1,10 +1,19 @@
 const express = require('express');
 
+const talleresRutas = require('./Rutas/talleres_rutas');
+const asistenciaRutas = require('./Rutas/asistencia_rutas');
+const usuarioRutas = require('./Rutas/usuario_rutas');
+
 const app = express();
 
 app.use(express.json());
 
 const PORT = 4000;
+
+// Prueba de vida
+app.get('/', (req, res) => {
+    res.json({ mensaje: 'API de Registro de Asistencia - CECyT 9 funcionando correctamente' });
+});
 
 // ejemplo de una peticion por medio de una ruta principal GET
 app.get('/saludo', (req, res)=>{
@@ -18,6 +27,11 @@ app.post('/eco', (req, res)=>{
     }
     res.status(201).json({eco:texto});
 });
+
+// Rutas de la API
+app.use('/api/talleres', talleresRutas);
+app.use('/api/asistencias', asistenciaRutas);
+app.use('/api/usuarios', usuarioRutas);
 
 app.listen(PORT, () =>{
     console.log(`Servidor escuchando en el puerto: ${PORT}`);

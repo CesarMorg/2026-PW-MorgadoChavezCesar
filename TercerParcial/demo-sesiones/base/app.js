@@ -253,7 +253,7 @@ app.post('/api/jwt/login', async(req, res, next)=>{
 
 app.get('/api/jwt/perfil', requiereJWT, (req, res)=>{
   res.json({
-    mensaje: Hola ${req.jwt.nombre},
+    mensaje: `Hola ${req.jwt.nombre}`,
     rol : req.jwt.rol,
     expiraEnSegundos: Math.max(0, req.jwt.exp - Math.floor(Date.now() /1000)),
   });

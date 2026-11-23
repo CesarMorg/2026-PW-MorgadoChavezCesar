@@ -1,151 +1,171 @@
 // La página solo hace fetch a la API. El navegador manda la cookie solo (misma página, mismo servidor).
 const $ = (id) => document.getElementById(id);
 
-// Etapa 1: una sola función para todas las peticiones, así no repito fetch en cada botón.
+// ETAPA 1 · Una sola función para hablar con la API.
+// Así todos los botones usan el mismo camino y no repetimos fetch por todos lados.
 async function llamar(metodo, url, cuerpo) {
-  const opciones = { method: metodo, headers: {} };
+  const opciones = { method: metodo };
 
-  // Content-Type solo cuando hay cuerpo: express.json() lo necesita para leerlo.
+  // El encabezado solo se manda cuando hay cuerpo: express.json() lo necesita para leerlo,
+  // y en un GET no hay nada que leer.
   if (cuerpo !== undefined) {
-    opciones.headers['Content-Type'] = 'application/json';
+    opciones.headers = { 'Content-Type': 'application/json' };
     opciones.body = JSON.stringify(cuerpo);
   }
 
+  // fetch NO falla con un 401 o 403: solo falla si no hay red. El código está en respuesta.status.
   const respuesta = await fetch(url, opciones);
 
-  // fetch no lanza error con 401/403; el código está en respuesta.status.
+  // Si el servidor responde algo que no es JSON, preferimos null a que el programa truene.
   let datos = null;
   try {
     datos = await respuesta.json();
-  } catch {
-    datos = null; // la respuesta no era JSON
+  } catch (error) {
+    datos = null;
   }
+
+  // No hace falta credentials: 'include' porque la página y la API son el mismo origen:
+  // el navegador ya manda la cookie solo. Con otro puerto (Next.js) sí haría falta.
   return { status: respuesta.status, datos };
 }
 
-// Etapa 2: agrega cada respuesta arriba. Uso textContent y no innerHTML
-// porque el JSON puede traer texto ajeno (riesgo de XSS).
-function anotarBitacora(metodo, url, status, datos) {
-  let clase = 'error';
-  if (status >= 200 && status < 300) clase = 'ok';
-  else if (status === 401) clase = 'e401';
-  else if (status === 403) clase = 'e403';
+// ETAPA 2 · La bitácora
+// Elegimos la clase de color según el código para que se vea de un vistazo si fue bien o mal.
+function claseCodigo(status) {
+  if (status >= 200 && status < 300) return 'codigo ok';
+  if (status === 401) return 'codigo e401';
+  if (status === 403) return 'codigo e403';
+  return 'codigo error';
+}
 
+// Todo el texto que viene del servidor entra con textContent, nunca con innerHTML:
+// un nombre como <img onerror=...> se mostraría como texto y no se ejecutaría (XSS).
+function anotar(metodo, url, status, datos) {
   const li = document.createElement('li');
 
   const codigo = document.createElement('span');
-  codigo.className = 'codigo ' + clase;
+  codigo.className = claseCodigo(status);
   codigo.textContent = status;
 
-  const ruta = document.createElement('strong');
-  ruta.textContent = ' ' + metodo + ' ' + url;
+  const ruta = document.createElement('span');
+  ruta.textContent = ` ${metodo} ${url}`;
 
   const pre = document.createElement('pre');
   pre.textContent = JSON.stringify(datos, null, 2);
 
   li.append(codigo, ruta, pre);
+  // prepend inserta al principio: lo más nuevo queda arriba.
   $('bitacora').prepend(li);
 }
 
-// Etapa 3: pregunta al servidor quién soy.
+// ETAPA 3 · El estado
+// Le preguntamos al servidor quién cree que somos: la verdad la tiene él, no la página.
 async function pintarEstado() {
   const { status, datos } = await llamar('GET', '/api/sesion');
-  const caja = $('estado');
+  const estado = $('estado');
 
   if (status === 200) {
-    caja.textContent = datos.usuario.nombre + ' (' + datos.usuario.rol + ') · sesión ' +
-      datos.sesion + ' · vence en ' + datos.expiraEnSegundos + ' s';
-    caja.className = 'estado con-sesion';
+    estado.textContent =
+      `${datos.usuario.nombre} (${datos.usuario.rol}) · sesión ${datos.sesion} · vence en ${datos.expiraEnSegundos} s`;
+    estado.className = 'estado con-sesion';
   } else {
-    caja.textContent = 'Sin sesión (el servidor responde 401)';
-    caja.className = 'estado sin-sesion';
+    estado.textContent = 'Sin sesión (el servidor responde 401)';
+    estado.className = 'estado sin-sesion';
   }
 
-  // Con httpOnly:true JavaScript no ve la cookie, por eso sale vacío aunque haya sesión.
+  // Con httpOnly: true, document.cookie sale vacío aunque haya sesión: el navegador
+  // guarda la cookie y la manda, pero no deja que el JavaScript la lea.
   $('cookie-js').textContent = document.cookie || '(vacío)';
 }
 
-// Etapa 4: muestra las sesiones que guarda el servidor.
+// ETAPA 4 · La tabla del servidor
+function crearCelda(texto) {
+  const td = document.createElement('td');
+  td.textContent = texto;
+  return td;
+}
+
 async function pintarTabla() {
   const { datos } = await llamar('GET', '/api/diagnostico/sesiones');
+  if (!datos) return;
 
-  $('donde').textContent =
-    datos.almacen === 'mysql'
-      ? 'En MySQL, tabla sessions'
-      : 'En la memoria del servidor (se pierde al reiniciar)';
+  $('donde').textContent = datos.almacen === 'mysql'
+    ? 'En MySQL, tabla sessions: sobreviven a un reinicio del servidor'
+    : 'En la memoria del servidor: se pierden al reiniciar';
 
-  const tbody = $('tabla-sesiones');
-  tbody.replaceChildren(); // vacío antes de llenar; si no, las filas se duplican
+  // Se vacía antes de llenar; si no, cada clic agregaría las mismas filas otra vez.
+  const cuerpo = $('tabla-sesiones');
+  cuerpo.replaceChildren();
 
   if (datos.sesiones.length === 0) {
-    const tr = document.createElement('tr');
-    const td = document.createElement('td');
-    td.colSpan = 4;
-    td.textContent = '(sin sesiones)';
-    tr.appendChild(td);
-    tbody.appendChild(tr);
+    const fila = document.createElement('tr');
+    const celda = crearCelda('(sin sesiones)');
+    celda.colSpan = 4;
+    fila.append(celda);
+    cuerpo.append(fila);
     return;
   }
 
-  for (const s of datos.sesiones) {
-    const tr = document.createElement('tr');
-    if (s.esLaTuya) tr.className = 'tuya';
+  datos.sesiones.forEach((s) => {
+    const fila = document.createElement('tr');
+    if (s.esLaTuya) fila.className = 'tuya';
 
-    const valores = [
-      s.sesion + (s.esLaTuya ? ' (la tuya)' : ''),
-      s.usuario,
-      s.visitas,
-      new Date(s.expira).toLocaleTimeString(), // de texto ISO a hora local
-    ];
-    for (const v of valores) {
-      const td = document.createElement('td');
-      td.textContent = v;
-      tr.appendChild(td);
-    }
-    tbody.appendChild(tr);
-  }
+    // expira llega como texto ISO; new Date lo convierte y toLocaleString lo deja en hora local.
+    const vence = s.expira ? new Date(s.expira).toLocaleString() : '—';
+
+    fila.append(
+      crearCelda(s.esLaTuya ? `${s.sesion} (la tuya)` : s.sesion),
+      crearCelda(s.usuario),
+      crearCelda(s.visitas),
+      crearCelda(vence)
+    );
+    cuerpo.append(fila);
+  });
 }
 
-// Etapa 5: después de cada acción refresco estado y tabla.
+// ETAPA 5 · Los eventos
+// Después de cada acción refrescamos las dos cosas, para que la pantalla siempre
+// muestre lo que el servidor tiene ahora.
 async function refrescarTodo() {
   await pintarEstado();
   await pintarTabla();
 }
 
-async function accion(metodo, url, cuerpo) {
-  const { status, datos } = await llamar(metodo, url, cuerpo);
-  anotarBitacora(metodo, url, status, datos);
+// Login: preventDefault evita que el formulario recargue la página.
+$('form-login').addEventListener('submit', async (evento) => {
+  evento.preventDefault();
+  const cuerpo = { usuario: $('usuario').value, contrasena: $('contrasena').value };
+  const { status, datos } = await llamar('POST', '/api/login', cuerpo);
+  anotar('POST', '/api/login', status, datos);
   await refrescarTodo();
-}
-
-// preventDefault evita que el formulario recargue la página.
-$('form-login').addEventListener('submit', (e) => {
-  e.preventDefault();
-  accion('POST', '/api/login', {
-    usuario: $('usuario').value,
-    contrasena: $('contrasena').value,
-  });
 });
 
-// Un solo recorrido para todos los botones con data-url.
+// Un solo recorrido para todos los botones: leen su método y su ruta del HTML (dataset),
+// así agregar un botón nuevo no obliga a tocar este código.
 document.querySelectorAll('[data-url]').forEach((boton) => {
-  boton.addEventListener('click', () => {
-    accion(boton.dataset.metodo, boton.dataset.url);
+  boton.addEventListener('click', async () => {
+    const { metodo, url } = boton.dataset;
+    const { status, datos } = await llamar(metodo, url);
+    anotar(metodo, url, status, datos);
+    await refrescarTodo();
   });
 });
 
-// Al cambiar de usuario pongo su contraseña de ejemplo.
-$('usuario').addEventListener('change', (e) => {
-  $('contrasena').value = e.target.value + '12345';
+// Al cambiar de usuario ponemos su contraseña de ejemplo (<usuario>12345).
+$('usuario').addEventListener('change', () => {
+  $('contrasena').value = `${$('usuario').value}12345`;
 });
 
 $('btn-refrescar').addEventListener('click', refrescarTodo);
 $('btn-sesiones').addEventListener('click', pintarTabla);
 
-// Etapa 6: al cargar. No uso DOMContentLoaded porque el <script> está al final del <body>.
+// ETAPA 6 · Al cargar la página
+// No hace falta esperar a DOMContentLoaded: el <script> está al final del <body>,
+// así que todos los elementos ya existen cuando este código corre.
 async function iniciar() {
   const { datos } = await llamar('GET', '/api/config');
   $('config').textContent = JSON.stringify(datos, null, 2);
   await refrescarTodo();
 }
+
 iniciar();

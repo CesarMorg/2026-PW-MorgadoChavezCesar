@@ -4,19 +4,24 @@ const bcrypt = require('bcryptjs');
 function crearModeloUsuarios(pool) {
   // Regresa el usuario (sin el hash) si la contraseña es correcta, o null si no.
   async function verificar(usuario, contrasena) {
-    if (!usuario || !contrasena) return null;
+    // Si llega algo que no es texto (por ejemplo un body vacío), no consultamos la base.
+    if (typeof usuario !== 'string' || typeof contrasena !== 'string') return null;
 
+    // El ? evita la inyección SQL: el valor viaja aparte y nunca se interpreta como código.
     const [filas] = await pool.query(
       'SELECT id, usuario, nombre, rol, contrasena_hash FROM usuarios WHERE usuario = ?',
       [usuario]
     );
-    if (filas.length === 0) return null; // mismo resultado que contraseña mala: no revelo si existe
+    if (filas.length === 0) return null; // el usuario no existe
 
     const fila = filas[0];
-    const coincide = await bcrypt.compare(contrasena, fila.contrasena_hash);
-    if (!coincide) return null;
+    // bcrypt compara la contraseña con el hash guardado: la contraseña nunca se guarda en texto.
+    const correcta = await bcrypt.compare(contrasena, fila.contrasena_hash);
+    if (!correcta) return null;
 
-    return { id: fila.id, usuario: fila.usuario, nombre: fila.nombre, rol: fila.rol };
+    // Los dos fallos regresan null: así el mensaje es el mismo y no revelamos qué usuarios existen.
+    const { contrasena_hash, ...sinHash } = fila;
+    return sinHash;
   }
 
   return { verificar };

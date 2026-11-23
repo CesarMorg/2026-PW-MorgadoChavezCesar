@@ -1,20 +1,37 @@
-function crearModeloTokens(pool){
-    //necesitamos una funcion que se encargue de poder insertar dentro de la bd los tokens que estaran revocados para que no se vuelvan a utilizar
+// Lista negra de tokens JWT. Solo se usa cuando config.jwtRevocar es true.
+// Si el SQL de la clase ya trae una tabla para esto, cambia aquí los nombres para que coincidan.
+function crearModeloTokens(pool) {
+  let tablaLista = false;
 
-    async function revocar(jti, usuario, exp){
-        await pool.query('INSERT INTO tokens_revocados (jti, usuario, exp) VALUES (?, ?, FROM_UNIXTIME(?))', [jti, usuario, exp]);
-    }
- //una funcion para revisar si el token esta revocado
-    async function estaRevocado(jti){
-        const [filas] = await pool.query('SELECT 1 FROM tokens_revocados WHERE jti = ?', [String(jti || '')]);
-        return filas.length > 0;
-    }
-    //una funcion para consultar los tokens revocados
-    async function listar (){
-        const [filas] = await pool.query('SELECT jti, usuario, expira, revocado FROM tokens_revocados ORDER BY revocado_en DESC, jti');
-        return filas;
-    }
-    return { revocar, estaRevocado, listar};
+  // Crea la tabla la primera vez que hace falta, para no depender de que el SQL la traiga.
+  async function asegurarTabla() {
+    if (tablaLista) return;
+    await pool.query(
+      `CREATE TABLE IF NOT EXISTS tokens_revocados (
+         jti VARCHAR(64) PRIMARY KEY,
+         usuario VARCHAR(50) NOT NULL,
+         expira DATETIME NOT NULL
+       )`
+    );
+    tablaLista = true;
+  }
+
+  async function estaRevocado(jti) {
+    await asegurarTabla();
+    const [filas] = await pool.query('SELECT 1 FROM tokens_revocados WHERE jti = ?', [jti]);
+    return filas.length > 0;
+  }
+
+  // exp viene en segundos (así lo guarda el JWT); FROM_UNIXTIME lo convierte a fecha de MySQL.
+  async function revocar(jti, usuario, exp) {
+    await asegurarTabla();
+    await pool.query(
+      'INSERT IGNORE INTO tokens_revocados (jti, usuario, expira) VALUES (?, ?, FROM_UNIXTIME(?))',
+      [jti, usuario, exp]
+    );
+  }
+
+  return { estaRevocado, revocar };
 }
 
 module.exports = { crearModeloTokens };

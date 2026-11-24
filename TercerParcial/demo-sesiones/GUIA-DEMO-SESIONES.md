@@ -276,8 +276,13 @@ programamos en el paso 2 (conserva el mismo id) y después lo corregimos.
 npm run probar
 ```
 
-Debe decir `21 de 21 pruebas pasaron.`. Las pruebas usan su propia base (`demo_sesiones_pruebas`) y no tocan tus datos.
+Debe decir `26 de 26 pruebas pasaron.`. Las pruebas usan su propia base (`demo_sesiones_pruebas`) y no tocan tus datos.
 Si alguna falla, el nombre de la prueba dice qué paso revisar.
+
+Las pruebas también comprueban JWT, tokens alterados, rotación al renovar y JSON inválido o excesivo. En producción,
+configura `SESSION_SECRET` y `JWT_SECRET` como valores distintos de al menos 32 bytes y sirve la aplicación por HTTPS;
+la aplicación rechaza el arranque en modo producción si faltan esos secretos. Los valores de demostración solo son para
+desarrollo local.
 
 ## Para tu matriz de riesgos
 

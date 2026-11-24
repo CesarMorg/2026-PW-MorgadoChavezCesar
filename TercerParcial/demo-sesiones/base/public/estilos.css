@@ -10,7 +10,9 @@
   --rojo: #b42318;
 }
 
-* { box-sizing: border-box; }
+* {
+  box-sizing: border-box;
+}
 
 body {
   margin: 0;
@@ -26,8 +28,20 @@ header {
   padding: 16px;
 }
 
-header h1 { margin: 0 0 4px; font-size: 1.4rem; }
-header p { margin: 0; }
+header h1 {
+  margin: 0 0 4px;
+  font-size: 1.4rem;
+}
+
+header p {
+  margin: 0;
+}
+
+header a {
+  color: #fff;
+}
+
+/* Las dos demos usan la misma distribución. */
 
 main {
   display: grid;
@@ -46,13 +60,31 @@ main {
   min-width: 0;
 }
 
-.tarjeta h2 { margin-top: 0; font-size: 1.1rem; }
+.tarjeta h2 {
+  margin-top: 0;
+  font-size: 1.1rem;
+}
 
-.estado { font-weight: 600; padding: 8px 12px; border-radius: 6px; }
-.con-sesion { background: #e3f4e8; color: var(--verde); }
-.sin-sesion { background: #fdecea; color: var(--rojo); }
+.estado {
+  font-weight: 600;
+  padding: 8px 12px;
+  border-radius: 6px;
+}
 
-.detalle { color: var(--suave); font-size: 0.9rem; }
+.con-sesion {
+  background: #e3f4e8;
+  color: var(--verde);
+}
+
+.sin-sesion {
+  background: #fdecea;
+  color: var(--rojo);
+}
+
+.detalle {
+  color: var(--suave);
+  font-size: 0.9rem;
+}
 
 pre {
   background: #f0f2f5;
@@ -65,9 +97,24 @@ pre {
   margin: 4px 0;
 }
 
-form { display: grid; gap: 8px; }
-label { display: grid; gap: 4px; font-weight: 600; }
-input, select { padding: 8px; border: 1px solid var(--borde); border-radius: 6px; font: inherit; }
+form {
+  display: grid;
+  gap: 8px;
+}
+
+label {
+  display: grid;
+  gap: 4px;
+  font-weight: 600;
+}
+
+input,
+select {
+  padding: 8px;
+  border: 1px solid var(--borde);
+  border-radius: 6px;
+  font: inherit;
+}
 
 button {
   padding: 8px 12px;
@@ -79,21 +126,125 @@ button {
   cursor: pointer;
 }
 
-button.peligro { background: var(--rojo); }
+button.peligro {
+  background: var(--rojo);
+}
 
-.botones { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+.botones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+}
 
-.bitacora { padding-left: 24px; max-height: 360px; overflow-y: auto; }
-.bitacora li { margin-bottom: 8px; }
+.bitacora {
+  padding-left: 24px;
+  max-height: 360px;
+  overflow-y: auto;
+}
 
-.codigo { display: inline-block; min-width: 44px; text-align: center; border-radius: 4px; color: #fff; font-weight: 700; }
-.codigo.ok { background: var(--verde); }
-.codigo.e401 { background: var(--rojo); }
-.codigo.e403 { background: var(--ambar); }
-.codigo.error { background: #444; }
+.bitacora li {
+  margin-bottom: 8px;
+}
 
-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin-bottom: 8px; }
-th, td { border-bottom: 1px solid var(--borde); padding: 6px; text-align: left; }
-tr.tuya { background: #fff6dc; font-weight: 600; }
+.codigo {
+  display: inline-block;
+  min-width: 44px;
+  text-align: center;
+  border-radius: 4px;
+  color: #fff;
+  font-weight: 700;
+}
 
-.estado-almacen { font-weight: 600; background: #eef2ff; color: #2b3a8c; padding: 6px 10px; border-radius: 6px; }
+.codigo.ok {
+  background: var(--verde);
+}
+
+.codigo.e401 {
+  background: var(--rojo);
+}
+
+.codigo.e403 {
+  background: var(--ambar);
+}
+
+.codigo.error {
+  background: #444;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  margin-bottom: 8px;
+}
+
+th,
+td {
+  border-bottom: 1px solid var(--borde);
+  padding: 6px;
+  text-align: left;
+}
+
+tr.tuya {
+  background: #fff6dc;
+  font-weight: 600;
+}
+
+.estado-almacen {
+  font-weight: 600;
+  background: #eef2ff;
+  color: #2b3a8c;
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+
+/* ---------- Estilos de JWT ---------- */
+
+#jwt textarea {
+  width: 100%;
+  min-height: 6rem;
+  font-family: monospace;
+  word-break: break-all;
+  padding: 8px;
+  border: 1px solid var(--borde);
+  border-radius: 6px;
+  resize: vertical;
+}
+
+#jwt #token-partes {
+  word-break: break-all;
+  overflow-wrap: anywhere;
+}
+
+/* Colores de las tres partes del JWT. */
+
+.t-cabecera {
+  color: #c0392b;
+}
+
+.t-payload {
+  color: #8e44ad;
+}
+
+.t-firma {
+  color: #2471a3;
+}
+
+/* Cabecera y payload en dos columnas. */
+
+.dos-columnas {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.dos-columnas h3 {
+  font-size: 1rem;
+}
+
+@media (max-width: 700px) {
+  .dos-columnas {
+    grid-template-columns: 1fr;
+  }
+}

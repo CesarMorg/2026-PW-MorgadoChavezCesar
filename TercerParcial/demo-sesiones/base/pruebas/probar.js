@@ -58,6 +58,20 @@ function navegador(url) {
   return nav;
 }
 
+async function pedirJWT(url, metodo, ruta, token, cuerpo) {
+  const headers = {};
+  if (token) headers.Authorization = `Bearer ${token}`;
+  if (cuerpo !== undefined) headers['Content-Type'] = 'application/json';
+  const respuesta = await fetch(url + ruta, {
+    method: metodo,
+    headers,
+    body: cuerpo === undefined ? undefined : JSON.stringify(cuerpo),
+  });
+  let datos = null;
+  try { datos = await respuesta.json(); } catch { datos = null; }
+  return { status: respuesta.status, datos };
+}
+
 const esperar = (ms) => new Promise((r) => setTimeout(r, ms));
 
 // Cuántas filas de la tabla sessions tienen a ese usuario.
@@ -75,7 +89,18 @@ async function filasDeSesion(usuario) {
     process.exit(1);
   }
   pool = crearPool(BD_PRUEBAS);
-  const { url, cerrar } = await arrancar();
+  const { url, cerrar } = await arrancar({
+    jwtSecreto: 'jwt-secreto-interno-de-prueba',
+    sessionSecreto: 'session-secreto-interno-de-prueba',
+  });
+
+  await prueba('La configuración pública no expone secretos', async () => {
+    const respuesta = await fetch(`${url}/api/config`);
+    const datos = await respuesta.json();
+    return respuesta.status === 200 &&
+      !Object.prototype.hasOwnProperty.call(datos, 'jwtSecreto') &&
+      !Object.prototype.hasOwnProperty.call(datos, 'sessionSecreto');
+  });
 
   await prueba('Los usuarios vienen de MySQL: luis (solo existe en la tabla) puede entrar', async () => {
     const nav = navegador(url);
@@ -145,6 +170,64 @@ async function filasDeSesion(usuario) {
     await nav.pedir('POST', '/api/login', { usuario: 'admin', contrasena: 'admin12345' });
     const r = await nav.pedir('GET', '/api/admin/reporte');
     return r.status === 200;
+  });
+
+  await prueba('JWT: login y perfil aceptan un token válido', async () => {
+    const login = await pedirJWT(url, 'POST', '/api/jwt/login', null, {
+      usuario: 'ana',
+      contrasena: 'ana12345',
+    });
+    if (login.status !== 200 || !login.datos.token) return false;
+    const perfil = await pedirJWT(url, 'GET', '/api/jwt/perfil', login.datos.token);
+    return perfil.status === 200 && perfil.datos.rol === 'alumno';
+  });
+
+  await prueba('JWT: rechaza tokens ausentes, alterados y con esquema incorrecto', async () => {
+    const login = await pedirJWT(url, 'POST', '/api/jwt/login', null, {
+      usuario: 'ana',
+      contrasena: 'ana12345',
+    });
+    const token = login.datos.token;
+    const partes = token.split('.');
+    const alterado = `${partes[0]}.${partes[1]}.` +
+      `${partes[2].startsWith('A') ? 'B' : 'A'}${partes[2].slice(1)}`;
+    const sinToken = await pedirJWT(url, 'GET', '/api/jwt/perfil');
+    const malEsquema = await fetch(`${url}/api/jwt/perfil`, {
+      headers: { Authorization: `Basic ${token}` },
+    });
+    const invalido = await pedirJWT(url, 'GET', '/api/jwt/perfil', alterado);
+    return sinToken.status === 401 && malEsquema.status === 401 && invalido.status === 401;
+  });
+
+  await prueba('JWT: refresh rota el token anterior y logout revoca el nuevo', async () => {
+    const login = await pedirJWT(url, 'POST', '/api/jwt/login', null, {
+      usuario: 'ana',
+      contrasena: 'ana12345',
+    });
+    const renovacion = await pedirJWT(url, 'POST', '/api/jwt/refresh', login.datos.token);
+    if (renovacion.status !== 200 || !renovacion.datos.token) return false;
+
+    const tokenAnterior = await pedirJWT(url, 'GET', '/api/jwt/perfil', login.datos.token);
+    const perfilNuevo = await pedirJWT(url, 'GET', '/api/jwt/perfil', renovacion.datos.token);
+    await pedirJWT(url, 'POST', '/api/jwt/logout', renovacion.datos.token);
+    const trasLogout = await pedirJWT(url, 'GET', '/api/jwt/perfil', renovacion.datos.token);
+    return tokenAnterior.status === 401 &&
+      perfilNuevo.status === 200 &&
+      trasLogout.status === 401;
+  });
+
+  await prueba('JSON mal formado y demasiado grande regresan 400 y 413', async () => {
+    const malFormado = await fetch(`${url}/api/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: '{',
+    });
+    const demasiadoGrande = await fetch(`${url}/api/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ usuario: 'ana', contrasena: 'x'.repeat(12000) }),
+    });
+    return malFormado.status === 400 && demasiadoGrande.status === 413;
   });
 
   await prueba('Secuestro: otro navegador con la cookie copiada entra sin contraseña', async () => {

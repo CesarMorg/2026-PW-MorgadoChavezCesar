@@ -23,7 +23,15 @@
     }
 
     // fetch no falla con 401 o 403.
-    const respuesta = await fetch(url, opciones);
+    let respuesta;
+    try {
+      respuesta = await fetch(url, opciones);
+    } catch (error) {
+      return {
+        status: 0,
+        datos: { error: 'No se pudo conectar con el servidor' }
+      };
+    }
 
     let datos = null;
 
@@ -93,6 +101,9 @@
         `vence en ${datos.expiraEnSegundos} s`;
 
       estado.className = 'estado con-sesion';
+    } else if (status === 0) {
+      estado.textContent = 'No se pudo consultar la sesión';
+      estado.className = 'estado sin-sesion';
     } else {
       estado.textContent =
         'Sin sesión (el servidor responde 401)';
@@ -119,7 +130,7 @@
       '/api/diagnostico/sesiones'
     );
 
-    if (!datos) {
+    if (!datos || !Array.isArray(datos.sesiones)) {
       return;
     }
 

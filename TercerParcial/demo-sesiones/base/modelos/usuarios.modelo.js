@@ -5,7 +5,11 @@ function crearModeloUsuarios(pool) {
   // Regresa el usuario (sin el hash) si la contraseña es correcta, o null si no.
   async function verificar(usuario, contrasena) {
     // Si llega algo que no es texto (por ejemplo un body vacío), no consultamos la base.
-    if (typeof usuario !== 'string' || typeof contrasena !== 'string') return null;
+    if (
+      typeof usuario !== 'string' || usuario.length === 0 || usuario.length > 50 ||
+      typeof contrasena !== 'string' || contrasena.length === 0 ||
+      Buffer.byteLength(contrasena, 'utf8') > 72
+    ) return null;
 
     // El ? evita la inyección SQL: el valor viaja aparte y nunca se interpreta como código.
     const [filas] = await pool.query(

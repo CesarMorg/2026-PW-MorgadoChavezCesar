@@ -3,6 +3,7 @@
   const $ = (id) => document.querySelector(`#jwt [id="${id}"]`);
 
   const CLAVE = 'token';
+  let almacenamientoBloqueado = false;
 
   // ---------- localStorage ----------
 
@@ -12,6 +13,7 @@
     try {
       return localStorage.getItem(CLAVE) || '';
     } catch (error) {
+      almacenamientoBloqueado = true;
       return '';
     }
   }
@@ -19,16 +21,20 @@
   function guardarToken(token) {
     try {
       localStorage.setItem(CLAVE, token);
+      almacenamientoBloqueado = false;
+      return true;
     } catch (error) {
-      // El almacenamiento puede estar bloqueado.
+      almacenamientoBloqueado = true;
+      return false;
     }
   }
 
   function borrarToken() {
     try {
       localStorage.removeItem(CLAVE);
+      almacenamientoBloqueado = false;
     } catch (error) {
-      // El almacenamiento puede estar bloqueado.
+      almacenamientoBloqueado = true;
     }
   }
 
@@ -115,6 +121,10 @@
         ? 'El texto guardado no es un JWT válido'
         : 'Sin token';
 
+      if (almacenamientoBloqueado) {
+        estado.textContent += ' · localStorage está bloqueado';
+      }
+
       estado.className = 'estado sin-sesion';
 
       $('token-partes').replaceChildren();
@@ -139,6 +149,10 @@
       : `Token de ${info.payload.usuario} · ` +
         `VENCIDO hace ${-restan} s ` +
         `(según el reloj del navegador)`;
+
+    if (almacenamientoBloqueado) {
+      estado.textContent += ' · localStorage está bloqueado';
+    }
 
     estado.className = restan > 0
       ? 'estado con-sesion'
@@ -214,7 +228,15 @@
         `Bearer ${token}`;
     }
 
-    const respuesta = await fetch(url, opciones);
+    let respuesta;
+    try {
+      respuesta = await fetch(url, opciones);
+    } catch (error) {
+      return {
+        status: 0,
+        datos: { error: 'No se pudo conectar con el servidor' }
+      };
+    }
 
     let datos = null;
 
@@ -327,9 +349,14 @@
         datos
       );
 
-      if (status === 200 && datos.token) {
-        guardarToken(datos.token);
+      if (status === 200 && datos && datos.token) {
+        const guardado = guardarToken(datos.token);
         $('token-texto').value = datos.token;
+        if (!guardado) {
+          anotar('POST', '/api/jwt/login', status, {
+            mensaje: 'Token recibido, pero localStorage está bloqueado; quedó en el campo de texto.'
+          });
+        }
       }
 
       await refrescar();
@@ -378,10 +405,16 @@
         if (
           url === '/api/jwt/refresh' &&
           status === 200 &&
+          datos &&
           datos.token
         ) {
-          guardarToken(datos.token);
+          const guardado = guardarToken(datos.token);
           $('token-texto').value = datos.token;
+          if (!guardado) {
+            anotar(metodo, url, status, {
+              mensaje: 'Token renovado, pero localStorage está bloqueado; quedó en el campo de texto.'
+            });
+          }
         }
 
         await refrescar();

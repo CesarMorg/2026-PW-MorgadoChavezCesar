@@ -23,7 +23,30 @@
 
   function crearApp(config, pool) {
     const app = express();
-    app.use(express.json());
+    const esProduccion = process.env.NODE_ENV === 'production';
+    const secretoSesion = config.sessionSecreto || process.env.SESSION_SECRET;
+    const secretoJWT = config.jwtSecreto || process.env.JWT_SECRET;
+    const expiracionJWT = config.jwtExpiraSeg === undefined ? 900 : config.jwtExpiraSeg;
+
+    if (!Number.isSafeInteger(config.maxAgeMs) || config.maxAgeMs <= 0) {
+      throw new Error('maxAgeMs debe ser un entero positivo');
+    }
+    if (!Number.isSafeInteger(expiracionJWT) || expiracionJWT <= 0) {
+      throw new Error('jwtExpiraSeg debe ser un entero positivo');
+    }
+    if (
+      esProduccion &&
+      (
+        !secretoSesion || Buffer.byteLength(secretoSesion) < 32 ||
+        !secretoJWT || Buffer.byteLength(secretoJWT) < 32 ||
+        secretoSesion === secretoJWT
+      )
+    ) {
+      throw new Error('En producción configura SESSION_SECRET y JWT_SECRET distintos, de al menos 32 bytes');
+    }
+
+    app.disable('x-powered-by');
+    app.use(express.json({ limit: '10kb' }));
 
     const usuarios = crearModeloUsuarios(pool);
     const tokens = crearModeloTokens(pool);
@@ -36,7 +59,7 @@
 
     app.use(session({
       name: NOMBRE_COOKIE,
-      secret: process.env.SESSION_SECRET || 'secreto-solo.para-la-demo',
+      secret: secretoSesion || 'secreto-solo.para-la-demo',
       store: almacen,
       resave: false,
       saveUninitialized: false, // no se crea sesión ni cookie hasta que haya algo que guardar
@@ -45,20 +68,21 @@
         maxAge: config.maxAgeMs,
         httpOnly: config.httpOnly,
         sameSite: config.sameSite,
-        secure: false,
+        secure: esProduccion,
       },
     }));
 
     // El que decide si la sesión venció es el servidor, no el navegador.
     function vencida(sesion) {
       const desde = config.rolling ? sesion.ultimoUso : sesion.creada;
-      return Date.now() - desde > config.maxAgeMs;
+      return !Number.isFinite(desde) || Date.now() - desde > config.maxAgeMs;
     }
 
     // 401: no sé quién eres.
     function requiereSesion(req, res, next) {
       if (req.session.usuario && vencida(req.session)) {
-        return req.session.destroy(() => {
+        return req.session.destroy((error) => {
+          if (error) return next(error);
           res.clearCookie(NOMBRE_COOKIE);
           res.status(401).json({ error: '401 · Tu sesión venció: vuelve a iniciar sesión' });
         });
@@ -84,7 +108,26 @@
 
     // ---------- Rutas de sesión ----------
     app.get('/api/config', (req, res) => {
-      res.json(config);
+      const {
+        almacen: tipoAlmacen,
+        maxAgeMs,
+        rolling,
+        httpOnly,
+        sameSite,
+        regenerarAlEntrar,
+        jwtExpiraSeg,
+        jwtRevocar,
+      } = config;
+      res.json({
+        almacen: tipoAlmacen,
+        maxAgeMs,
+        rolling,
+        httpOnly,
+        sameSite,
+        regenerarAlEntrar,
+        jwtExpiraSeg: jwtExpiraSeg || 900,
+        jwtRevocar,
+      });
     });
 
     app.post('/api/visita', (req, res) => {
@@ -171,31 +214,56 @@
     });
 
     // ---------- JWT ----------
-    const SECRETO_JWT = config.jwtSecreto || process.env.JWT_SECRET || 'secreto-jwt-solo-para-esta-demo';
+    const SECRETO_JWT = secretoJWT || 'secreto-jwt-solo-para-esta-demo';
+    const EMISOR_JWT = 'demo-sesiones';
+    const AUDIENCIA_JWT = 'demo-sesiones-api';
 
     function firmarToken(usuario) {
       return jwt.sign(
         { sub: String(usuario.id), usuario: usuario.usuario, nombre: usuario.nombre, rol: usuario.rol },
         SECRETO_JWT,
-        { algorithm: 'HS256', expiresIn: config.jwtExpiraSeg || 900, jwtid: crypto.randomUUID() }
+        {
+          algorithm: 'HS256',
+          expiresIn: expiracionJWT,
+          jwtid: crypto.randomUUID(),
+          issuer: EMISOR_JWT,
+          audience: AUDIENCIA_JWT,
+        }
       );
     }
 
     // 401: falta el token o no sirve.
     async function requiereJWT(req, res, next) {
       const encabezado = req.headers.authorization || '';
-      if (!encabezado.startsWith('Bearer ')) {
+      const coincidencia = /^Bearer\s+(\S+)$/i.exec(encabezado);
+      if (!coincidencia || coincidencia[1].length > 4096) {
         return res.status(401).json({ error: '401 · Falta el token (Authorization: Bearer ...)' });
       }
-      const token = encabezado.slice('Bearer '.length);
+      const token = coincidencia[1];
 
       let datos;
       try {
-        datos = jwt.verify(token, SECRETO_JWT, { algorithms: ['HS256'] });
+        datos = jwt.verify(token, SECRETO_JWT, {
+          algorithms: ['HS256'],
+          issuer: EMISOR_JWT,
+          audience: AUDIENCIA_JWT,
+        });
       } catch (error) {
         if (error.name === 'TokenExpiredError') {
           return res.status(401).json({ error: '401 · Token vencido: vuelve a iniciar sesión' });
         }
+        return res.status(401).json({ error: '401 · Token inválido' });
+      }
+
+      if (
+        !datos || typeof datos !== 'object' ||
+        typeof datos.sub !== 'string' || !datos.sub ||
+        typeof datos.jti !== 'string' || !datos.jti ||
+        typeof datos.usuario !== 'string' ||
+        typeof datos.nombre !== 'string' ||
+        typeof datos.rol !== 'string' ||
+        !Number.isFinite(datos.exp)
+      ) {
         return res.status(401).json({ error: '401 · Token inválido' });
       }
 
@@ -244,9 +312,16 @@
       res.json({ reporte: 'Talleres: 3' });
     });
 
-    app.post('/api/jwt/refresh', requiereJWT, (req, res) => {
-      const { sub, usuario, nombre, rol } = req.jwt;
-      res.json({ token: firmarToken({ id: sub, usuario, nombre, rol }) });
+    app.post('/api/jwt/refresh', requiereJWT, async (req, res, next) => {
+      try {
+        const { sub, usuario, nombre, rol } = req.jwt;
+        if (config.jwtRevocar) {
+          await tokens.revocar(req.jwt.jti, usuario, req.jwt.exp);
+        }
+        res.json({ token: firmarToken({ id: sub, usuario, nombre, rol }) });
+      } catch (error) {
+        next(error);
+      }
     });
 
     app.post('/api/jwt/logout', requiereJWT, async (req, res, next) => {
@@ -267,8 +342,16 @@
     app.use('/api', (req, res) => res.status(404).json({ error: 'Ruta no encontrada' }));
 
     app.use((error, req, res, next) => {
+      if (res.headersSent) return next(error);
+
+      if (error.type === 'entity.parse.failed') {
+        return res.status(400).json({ error: 'JSON inválido' });
+      }
+      if (error.type === 'entity.too.large') {
+        return res.status(413).json({ error: 'La solicitud excede el tamaño permitido' });
+      }
       console.error(error);
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ error: 'Error interno del servidor' });
     });
 
     return app;
